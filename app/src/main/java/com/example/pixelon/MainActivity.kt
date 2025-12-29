@@ -65,6 +65,14 @@ fun SelectImage() {
         }
     )
 
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture(),
+        onResult = {success ->
+            if (success && imageUri.value != null)
+                launchHandlingActivity(ctx, imageUri.value!!)
+
+        }
+    )
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -91,7 +99,9 @@ fun SelectImage() {
                     .height(120.dp)
                     .clip(CircleShape),
                 onClick = {
-
+                    val uri = ComposeFileProvider.getImageUri(ctx)
+                    imageUri.value = uri
+                    cameraLauncher.launch(uri)
                 }
             ) {
                 Text(text = "Camera")
