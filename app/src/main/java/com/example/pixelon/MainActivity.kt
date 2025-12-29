@@ -1,5 +1,7 @@
 package com.example.pixelon
 
+import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -18,7 +20,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -54,6 +55,17 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun SelectImage() {
 
+    val ctx = LocalContext.current
+    val imageUri = remember { mutableStateOf<Uri?>(null)}
+    val imagePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = {uri ->
+            imageUri.value = uri
+           launchHandlingActivity(ctx, uri)
+        }
+    )
+
+
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -68,7 +80,7 @@ fun SelectImage() {
                     .width(120.dp)
                     .height(120.dp)
                     .clip(CircleShape),
-                onClick = {  }
+                onClick = { imagePicker.launch("image/*") }
             ) {
                 Text(text = "Picker")
             }
@@ -87,6 +99,13 @@ fun SelectImage() {
         }
     }
 }
+
+fun launchHandlingActivity(ctx: Context, uri: Uri?) {
+    val intent = Intent(ctx, EditActivity::class.java)
+    intent.putExtra("imageUri", uri.toString())
+    ctx.startActivity(intent)
+}
+
 
 @Preview(showBackground = true)
 @Composable
